@@ -21,8 +21,6 @@ Poke-MCP is built using the [Model Context Protocol](https://modelcontextprotoco
 
 ### MCP Tools
 
-### MCP Tools
-
 The server provides the following tools:
 
 - get-pokemon: Get detailed information about a specific Pokémon by name
