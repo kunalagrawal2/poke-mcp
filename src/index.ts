@@ -1,6 +1,15 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import {
+  Pokemon,
+  PokemonAbility,
+  PokemonResponse,
+  PokemonSpeciesDetails,
+  PokemonType,
+  GenerationData,
+  TypeData,
+} from "./types.js";
 
 const POKEAPI_BASE_URL = "https://pokeapi.co/api/v2";
 const USER_AGENT = "pokedex-app/1.0";
@@ -52,65 +61,11 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Interface definitions
-interface PokemonSpecies {
-  name: string;
-  url: string;
-}
-
-interface GenerationData {
-  pokemon_species: PokemonSpecies[];
-}
-
-interface PokemonType {
-  type: {
-    name: string;
-  };
-}
-
-interface PokemonAbility {
-  ability: {
-    name: string;
-  };
-}
-
-interface FlavorTextEntry {
-  flavor_text: string;
-  language: {
-    name: string;
-  };
-}
-
-interface Pokemon {
-  id: number;
-  name: string;
-  height: number;
-  weight: number;
-  types: PokemonType[];
-  abilities: PokemonAbility[];
-  sprites: {
-    front_default: string;
-  };
-}
-
-interface PokemonSpeciesDetails {
-  flavor_text_entries: FlavorTextEntry[];
-}
-
-interface TypeData {
-  pokemon: {
-    pokemon: {
-      name: string;
-      url: string;
-    };
-  }[];
-}
-
 // Helper function to get English flavor text
 function getEnglishFlavorText(species: PokemonSpeciesDetails): string {
   return (
     species.flavor_text_entries
-      .find((entry: FlavorTextEntry) => entry.language.name === "en")
+      .find((entry) => entry.language.name === "en")
       ?.flavor_text.replace(/\n/g, " ")
       .replace(/\f/g, " ") || "No description available."
   );
@@ -145,7 +100,7 @@ async function getPokemonDetails(pokemonNameOrId: string) {
 function formatPokemonResponse(
   pokemon: Pokemon,
   species: PokemonSpeciesDetails
-) {
+): PokemonResponse {
   const types = formatPokemonTypes(pokemon.types);
   const abilities = formatPokemonAbilities(pokemon.abilities);
   const flavorText = getEnglishFlavorText(species);
@@ -164,7 +119,7 @@ function formatPokemonResponse(
   return {
     content: [
       {
-        type: "text" as const,
+        type: "text",
         text: text,
       },
     ],
@@ -172,7 +127,7 @@ function formatPokemonResponse(
 }
 
 // Helper function to get a random Pokémon
-async function getRandomPokemon() {
+async function getRandomPokemon(): Promise<PokemonResponse> {
   // There are currently around 1000+ Pokémon, but we'll limit to 1000 to be safe
   const randomId = Math.floor(Math.random() * 1000) + 1;
   const details = await getPokemonDetails(randomId.toString());
@@ -181,7 +136,7 @@ async function getRandomPokemon() {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: "Failed to retrieve a random Pokémon. Please try again.",
         },
       ],
@@ -192,7 +147,9 @@ async function getRandomPokemon() {
 }
 
 // Helper function to get a random Pokémon from a region
-async function getRandomPokemonFromRegion(region: string) {
+async function getRandomPokemonFromRegion(
+  region: string
+): Promise<PokemonResponse> {
   const normalizedRegion = region.toLowerCase();
   const generation = REGION_TO_GENERATION[normalizedRegion];
 
@@ -200,7 +157,7 @@ async function getRandomPokemonFromRegion(region: string) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `Unknown region: ${region}. Available regions are: ${Object.keys(
             REGION_TO_GENERATION
           ).join(", ")}`,
@@ -222,7 +179,7 @@ async function getRandomPokemonFromRegion(region: string) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `Failed to retrieve Pokémon from the ${normalizedRegion} region.`,
         },
       ],
@@ -239,7 +196,7 @@ async function getRandomPokemonFromRegion(region: string) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `Failed to retrieve details for the selected Pokémon from ${normalizedRegion}.`,
         },
       ],
@@ -254,7 +211,7 @@ async function getRandomPokemonFromRegion(region: string) {
   return {
     content: [
       {
-        type: "text" as const,
+        type: "text",
         text: `
 # Random ${capitalizeFirstLetter(
           normalizedRegion
@@ -275,7 +232,7 @@ async function getRandomPokemonFromRegion(region: string) {
 }
 
 // Helper function to get a random Pokémon of a specific type
-async function getRandomPokemonByType(type: string) {
+async function getRandomPokemonByType(type: string): Promise<PokemonResponse> {
   const normalizedType = type.toLowerCase();
 
   // Get all Pokémon of this type
@@ -285,7 +242,7 @@ async function getRandomPokemonByType(type: string) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `Unknown type: ${type} or no Pokémon found of this type.`,
         },
       ],
@@ -302,7 +259,7 @@ async function getRandomPokemonByType(type: string) {
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `Failed to retrieve details for the selected ${normalizedType} Pokémon.`,
         },
       ],
@@ -317,7 +274,7 @@ async function getRandomPokemonByType(type: string) {
   return {
     content: [
       {
-        type: "text" as const,
+        type: "text",
         text: `
 # Random ${capitalizeFirstLetter(
           normalizedType
@@ -435,7 +392,7 @@ server.tool(
     return {
       content: [
         {
-          type: "text" as const,
+          type: "text",
           text: `
 I can help with Pokémon queries! Try asking:
 - "Give me a random Pokémon"
