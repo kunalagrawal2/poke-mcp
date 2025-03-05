@@ -41,6 +41,15 @@ The server is built using:
 
 ## Installation
 
+### Installing via Smithery
+
+To install Pokémcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@NaveenBandarage/poke-mcp):
+
+```bash
+npx -y @smithery/cli install @NaveenBandarage/poke-mcp --client claude
+```
+
+### Manual Installation
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/poke-mcp.git
