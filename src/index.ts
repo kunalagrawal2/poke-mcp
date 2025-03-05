@@ -294,6 +294,24 @@ async function getRandomPokemonByType(type: string): Promise<PokemonResponse> {
   };
 }
 
+// Add this helper function after getPokemonDetails
+async function getPokemonById(id: number): Promise<PokemonResponse> {
+  const details = await getPokemonDetails(id.toString());
+
+  if (!details) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `No Pokémon found with ID #${id}.`,
+        },
+      ],
+    };
+  }
+
+  return formatPokemonResponse(details.pokemon, details.species);
+}
+
 // Register Pokémon tools
 server.tool(
   "random-pokemon",
@@ -339,6 +357,15 @@ server.tool(
   },
   async ({ query }, _extra) => {
     const normalizedQuery = query.toLowerCase();
+
+    // Check for Pokémon number query
+    const numberMatch =
+      normalizedQuery.match(/pokemon\s+#?(\d+)/i) ||
+      normalizedQuery.match(/what\s+is\s+pokemon\s+#?(\d+)/i);
+    if (numberMatch) {
+      const pokemonId = parseInt(numberMatch[1], 10);
+      return await getPokemonById(pokemonId);
+    }
 
     // Check for random Pokémon request
     if (
@@ -395,6 +422,7 @@ server.tool(
           type: "text",
           text: `
 I can help with Pokémon queries! Try asking:
+- "What is pokemon #25?"
 - "Give me a random Pokémon"
 - "Give me a random Pokémon from Kanto"
 - "Give me a random Fire Pokémon"
