@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/naveenbandarage-poke-mcp-badge.png)](https://mseep.ai/app/naveenbandarage-poke-mcp)
+
 [![smithery badge](https://smithery.ai/badge/@NaveenBandarage/poke-mcp)](https://smithery.ai/server/@NaveenBandarage/poke-mcp)
 
 <a href="https://glama.ai/mcp/servers/@NaveenBandarage/poke-mcp">
@@ -7,6 +9,8 @@
 ## Overview
 
 Poke-MCP is a Model Context Protocol (MCP) server that provides Pokémon information through a standardized interface. It connects to the [PokeAPI](https://pokeapi.co/) to fetch Pokémon data and exposes it through MCP tools that can be used by any MCP-compatible client, such as Claude Desktop App, Continue, Cline, and others.
+
+**This server now supports HTTP transport using Server-Sent Events (SSE) for real-time communication, making it accessible over HTTP instead of just stdio.**
 
 ## Features
 
@@ -42,7 +46,8 @@ The server is built using:
 - TypeScript
 - MCP TypeScript SDK (@modelcontextprotocol/sdk)
 - Zod for input validation
-- Standard I/O transport for MCP communication
+- HTTP transport with Server-Sent Events (SSE) for MCP communication
+- Node.js built-in HTTP server
 
 ## Installation
 
@@ -55,6 +60,7 @@ npx -y @smithery/cli install @NaveenBandarage/poke-mcp --client claude
 ```
 
 ### Manual Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/poke-mcp.git
@@ -69,25 +75,51 @@ npm run build
 
 ## Usage
 
-### With Claude Desktop App
+### Running the HTTP Server
+
+To start the server in HTTP mode:
+
+```bash
+# Start the server (defaults to port 3000)
+npm start
+
+# Or specify a custom port
+PORT=8080 npm start
+```
+
+The server will be available at:
+
+- **Info endpoint**: `http://127.0.0.1:3000/` - Server information and status
+- **SSE endpoint**: `http://127.0.0.1:3000/sse` - Server-Sent Events connection for MCP clients
+- **Message endpoint**: `http://127.0.0.1:3000/message` - POST endpoint for sending MCP messages
+
+### With Claude Desktop App (HTTP Transport)
 
 1. Download and install [Claude Desktop App](https://claude.ai/download)
 2. Open Claude Desktop settings
 3. Go to Developer settings and edit the config file
-4. Add the following configuration:
+4. Add the following configuration for HTTP transport:
 
 ```json
 {
   "mcpServers": {
     "pokedex": {
-      "command": "path/to/poke-mcp/build/index.js"
+      "transport": {
+        "type": "sse",
+        "url": "http://127.0.0.1:3000/sse"
+      }
     }
   }
 }
 ```
 
-5. Restart Claude Desktop
-6. You should now see the Pokémon tools available in Claude
+5. Start the Poke-MCP server: `npm start`
+6. Restart Claude Desktop
+7. You should now see the Pokémon tools available in Claude
+
+### Legacy Usage (stdio)
+
+For backward compatibility, you can still run the server with stdio transport by reverting to the stdio implementation.
 
 ### Example Queries
 
