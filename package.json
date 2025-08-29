@@ -20,7 +20,7 @@
     "model-context-protocol"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "build"
   ],
