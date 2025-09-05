@@ -8,7 +8,9 @@
     "poke-mcp": "./build/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run build && node build/test-client.js",
+    "test:client": "npm run build && node build/test-client.js",
+    "test:interactive": "npm run build && node build/interactive-test.js",
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "start": "node build/index.js",
     "dev": "npm run build && npm start"
@@ -26,6 +28,7 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.0",
+    "better-sqlite3": "^12.2.0",
     "zod": "3.24.2"
   },
   "devDependencies": {
