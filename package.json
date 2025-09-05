@@ -11,6 +11,8 @@
     "test": "npm run build && node build/test-client.js",
     "test:client": "npm run build && node build/test-client.js",
     "test:interactive": "npm run build && node build/interactive-test.js",
+    "test:cache": "npm run build && node build/cache-test.js",
+    "test:offline": "npm run build && node build/offline-test.js",
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "start": "node build/index.js",
     "dev": "npm run build && npm start"
@@ -32,6 +34,7 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.13.5",
     "typescript": "^5.7.3"
   }

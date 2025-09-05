@@ -12,6 +12,8 @@ import {
   GenerationData,
   TypeData,
 } from "./types.js";
+import { initCache } from "./cache/sqliteCache.js";
+import { pokemonInfoCached } from "./tools/pokemonInfoCached.js";
 
 const POKEAPI_BASE_URL = "https://pokeapi.co/api/v2";
 const USER_AGENT = "pokedex-app/1.0";
@@ -34,6 +36,9 @@ const server = new McpServer({
   name: "pokedex",
   version: "1.0.0",
 });
+
+// Initialize SQLite cache
+initCache();
 
 // Helper function for making PokeAPI requests
 async function fetchFromPokeAPI<T>(endpoint: string): Promise<T | null> {
@@ -432,6 +437,45 @@ I can help with Pokémon queries! Try asking:
         },
       ],
     };
+  }
+);
+
+// Cached Pokémon info tool
+server.tool(
+  pokemonInfoCached.name,
+  pokemonInfoCached.description,
+  pokemonInfoCached.inputSchema,
+  async (args, _extra) => {
+    try {
+      const result = await pokemonInfoCached.handler(args);
+      if (result.error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${result.error}`,
+            },
+          ],
+        };
+      }
+      return {
+        content: [
+          {
+            type: "text",
+            text: result.text || 'No data available',
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
+      };
+    }
   }
 );
 
